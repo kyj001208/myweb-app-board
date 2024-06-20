@@ -1,0 +1,50 @@
+<ul xmlns:th="http://www.thymleaf.org">
+	<li class="flex">
+		<div>번호</div>
+		<div>내용</div>
+		<div>작성자</div>
+		<div>작성일</div>
+		<div>비고</div>
+	</li>
+
+	<li class="list" th:each="dto:${list}">
+
+		<form th:action="|/memo/${dto.no}|" method="post" class="update flex" style="display: none;">
+
+			<div th:text="${dto.no}">번호</div>
+			<div>
+				<textarea name="content">[(${dto.content})]</textarea>
+			</div>
+			<div>
+				<input type="text" name="writer" th:value="${dto.writer}" >
+			</div>
+			<div th:text="${dto.updatedAt}">작성일</div>
+
+			<div>
+				<input type="hidden" name="_method" value="put">
+				<button  onclick="btnUpdateDoneClicked(event,this)">수정완료</button>
+				<button type="button" onclick="changMode(this,'cancel')">취소</button>
+
+			</div>
+
+		</form>
+		
+		<div class="default flex">
+
+			<div th:text="${dto.no}">번호</div>
+			<div th:text="${dto.content}">내용</div>
+			<div th:text="${dto.writer}">작성자</div>
+			<div th:text="${dto.updatedAt}">작성일</div>
+
+			<div>
+				<!--this를 넘겨주게되면 내가 클릭한것만 열림-->
+				<button onclick="changMode(this,'update')">수정</button>
+				<button th:onclick="|btnDerleteClicked(${dto.no})|">삭제</button>
+
+			</div>
+		</div>
+
+	</li>
+</ul>
+
+

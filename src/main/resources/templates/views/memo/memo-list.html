@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{common/layout::frame(~{this::head},~{this::main})}">
+
+<head>
+	<style>
+		.flex {
+			display: flex;
+			border-bottom: 1px solid #d9d9d9;
+		}
+
+		.flex>* {
+			flex: 1;
+		}
+	</style>
+
+	<!--변수처리해주는 것 : ` -->
+	<script>
+		//저장용 비동기 함수
+		function onSave(event, formTag) {
+
+			event.preventDefault();
+			
+			var writer = $("#writer").val().trim();
+			if (writer.length < 4) {
+
+				$("#writer").after(`<div id="writer-err" style="color:red">작성자는4글자이상</div>`);
+				return;
+			}
+			
+			$("#writer-err").remove();
+
+			var writer = $("#content").val().trim();
+			if (content.length < 4) {
+
+				$("#content").after(`<div id="content-err" style="color:red">내용은4글자이상</div>`);
+				return;
+			}
+			
+			$("#content-err").remove();
+
+
+
+			var formData = $(formTag).serialize();
+
+			$.ajax({
+				url: "/memo",
+				type: "post",
+				data: formData,
+				success: () => {
+					//document.querySelector("#fmt-save").reset();
+					//console.log($("#fmt-save"));
+					$("#fmt-save")[0].reset();
+					getList();
+				}
+			});
+
+		}
+
+
+		function btnUpdateDoneClicked(event, element) {
+
+			//submit 처리되지 않아요
+			event.preventDefault();
+
+			var formTag = $(element).parents("form")
+			var url = formTag.attr("action");
+			console.log("url", url);
+			console.log("formData :", formTag.serialize());
+			$.ajax({
+
+				url: url,
+				type: "post",
+				data: formTag.serialize(),
+				success: () => { },
+				error: () => {alert("이미 삭제된 메모입니다.");},
+				complete: () => {getList();}
+
+
+			});
+		}
+
+
+
+		//수정 화면 관련 함수
+		function changMode(btnTage, mode) {//mode ='cancel', 'update'
+
+			$(".update").hide();
+			$(".default").show();
+
+			if (mode == 'cancel') return; //cancel이면 함수종료
+
+			var liTag = $(btnTage).parents(".list");
+
+			liTag.find(".default").hide();
+			liTag.find(".update").show();
+
+
+		}
+
+		/*
+		$(function(){
+			getList();
+			
+		});
+		*/
+
+		$(getList); //로딩되면 getList 실행해
+
+
+		//1번 방법 - 비동기로 list만 갖고 와요
+		function getList() {
+			$.ajax({
+				url: "/ajax/memo",
+				type: "get",
+				success: (htmlData) => {
+					//console.log(htmlData);
+
+					//result를 replace 교체 한다는 의미 
+					$("#result").html(htmlData);
+
+				}
+			});
+			//2번방법
+			//$.get("/ajax/memo",function(){});
+		}
+
+		function btnDerleteClicked(no) {
+			//Jquery의 ajax(), 
+			//1번방법
+			//$.post(`/memo/${no}`,	{_method:"delete"},function(){})
+
+			//2번 방법
+			$.ajax({
+				url: `/memo/${no}`,
+				type: "delete",
+				//data:{_method:"delete"}, 	
+				success: function (data, status, xhr) {
+					console.log("status" + status);
+
+					//XMLHttpRequest의 약자
+					var contentType = xhr.getResponseHeader('Content-Type');
+					console.log('Content-Type :', contentType);
+					var statusCode = xhr.status;
+					console.log('statusCode:', statusCode);
+					console.log("-----------")
+					console.log('xhr', xhr);
+					//삭제처리된 리스트가 화면에 나오도록 처리 
+					getList(); //함수 호출, 삭제 후 화면 조회 기능함수
+
+				},
+				error: function (error) {
+					console.log(error);
+				}
+				, complete: function (xhr, status) {
+					console.log("success or error 마지막에 처리된다")
+					if (status === 200) {
+						console.log("success  후 처리할때");
+					}
+
+				}
+
+			});
+
+		}
+	</script>
+
+</head>
+
+<main>
+	<h2>메모리스트</h2>
+	<div class="wrap">
+		<p>
+			<b>메모쓰기</b>
+			<!--입력받은 것은 가져오기 위해 method post로 지정 및 action-->
+			<!--여기 action 뺌-->
+		<form method="post" onsubmit="onSave(event,this)" id="fmt-save">
+
+			<!--입력 요소를 구분하기 위해 name 값 필요-->
+			<p>
+				<input type="text" name="writer" placeholder="작성자" id="writer" />
+			</p>
+
+			<p>
+				<textarea name="content" rows="2" cols="50" placeholder="메모작성해주세요" id="content"></textarea>
+			</p>
+
+			<!--입력 요소를 전송하기 위해 form 태그 사용 후 button type을 submit-->
+			<p>
+				<button type="submit">메모등록</button>
+			</p>
+
+		</form>
+		</p>
+		<div>
+			<b>메모내용</b>
+			<div id="result">
+				<!--내용은 비동기로 처리됩니다 (ajax-list에서 진행)-->
+			</div>
+		</div>
+	</div>
+</main>
+
+</html>

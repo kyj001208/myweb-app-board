@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="frame(pHead,pMain)">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<title>MEMO</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	
+	<th:block th:replace="${pHead}" />
+</head>
+<body>
+	<header th:replace="~{common/header}"></header>
+	<main th:replace="${pMain}"></main>
+	<footer th:replace="~{common/footer}"></footer>
+</body>
+</html>
